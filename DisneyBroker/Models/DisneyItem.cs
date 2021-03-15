@@ -1,0 +1,20 @@
+﻿using System;
+
+namespace DisneyBroker.Models
+{
+    public class DisneyItem
+    {
+        public string ItemNo { get; set; }
+        public string Name { get; set; }
+        public string EbayLink { get; set; }
+        public int Amount { get; set; }
+        public bool BoxIncluded { get; set; }
+        public bool COAIncluded { get; set; }
+        public bool IsRetired { get; set; }
+        public bool LabelIncluded { get; set; }
+        public float Price { get; set; }
+        public float EbayPrice { get; set; }
+        public DateTime ScrapeDate { get; set; }
+
+    }
+}
