@@ -2,19 +2,15 @@
 
 namespace DisneyBroker.Models
 {
-    public class DisneyItem
+    public record DisneyItem : DisneyEbayitem
     {
-        public string ItemNo { get; set; }
-        public string Name { get; set; }
-        public string EbayLink { get; set; }
-        public int Amount { get; set; }
-        public bool BoxIncluded { get; set; }
-        public bool COAIncluded { get; set; }
-        public bool IsRetired { get; set; }
-        public bool LabelIncluded { get; set; }
-        public float Price { get; set; }
-        public float EbayPrice { get; set; }
-        public DateTime ScrapeDate { get; set; }
+        public DisneyItem(string itemNo, string name, string ebayLink, int amount, bool boxIncluded, bool coaIncluded, bool isRetired, float price, float ebayPrice, DateTime scrapeDate) : base(itemNo, name, ebayLink, amount, boxIncluded, coaIncluded, isRetired, price)
+        {
+            EbayPrice = ebayPrice;
+            ScrapeDate = scrapeDate;
+        }
 
+        public float EbayPrice { get; init; }
+        public DateTime ScrapeDate { get; init; }
     }
 }

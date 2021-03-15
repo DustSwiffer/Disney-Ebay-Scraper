@@ -20,7 +20,7 @@ namespace DisneyBroker
 
             Console.WriteLine("");
             Console.WriteLine("Getting NON-Traditions URLs to scrape");
-            List<DisneyItem> nonTradtions = GoogleHandler.GetData("NON-Traditions");
+            List<DisneyEbayitem> nonTradtions = GoogleHandler.GetData("NON-Traditions");
 
             List<DisneyItem> modifiedNonTraditions = await scraper.ScrapeSite(nonTradtions);
 
@@ -40,7 +40,7 @@ namespace DisneyBroker
             Console.WriteLine("");
             Console.WriteLine("Getting Traditions URLs to scrape");
 
-            List<DisneyItem> tradtions = GoogleHandler.GetData("Traditions");
+            List<DisneyEbayitem> tradtions = GoogleHandler.GetData("Traditions");
 
             List<DisneyItem> modifiedTraditions = await scraper.ScrapeSite(tradtions);
             Console.WriteLine(modifiedTraditions.ToString());

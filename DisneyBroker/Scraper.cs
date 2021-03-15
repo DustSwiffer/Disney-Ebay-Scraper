@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +11,7 @@ namespace DisneyBroker
 {
     public class Scraper
     {
-        public async Task<List<DisneyItem>> ScrapeSite(List<DisneyItem> items)
+        public async Task<List<DisneyItem>> ScrapeSite(List<DisneyEbayitem> items)
         {
             List<DisneyItem> patchedItems = new List<DisneyItem>();
 
@@ -88,8 +87,11 @@ namespace DisneyBroker
                         Console.WriteLine("€" + roundEstimatePrice);
                         Console.ForegroundColor = ConsoleColor.White;
 
-                        item.EbayPrice = Convert.ToSingle(roundEstimatePrice);
-                        item.ScrapeDate = DateTime.UtcNow;
+                        DisneyItem test = item with
+                        {
+                            EbayPrice = Convert.ToSingle(roundEstimatePrice),
+                            ScrapeDate = DateTime.UtcNow
+                        };
 
                         patchedItems.Add(item);
                     }
