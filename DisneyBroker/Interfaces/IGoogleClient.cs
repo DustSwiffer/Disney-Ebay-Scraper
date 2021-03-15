@@ -28,7 +28,6 @@ namespace DisneyBroker.Interfaces
         public GoogleClient(string _sheet)
         {
             sheet = _sheet;
-       
         }
 
         public List<DisneyEbayItem> GetSheetData()
