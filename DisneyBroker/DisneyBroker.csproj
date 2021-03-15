@@ -8,9 +8,27 @@
   <ItemGroup>
     <PackageReference Include="Google.Apis.Sheets.v4" Version="1.50.0.2245" />
     <PackageReference Include="HtmlAgilityPack" Version="1.5.5" />
+    <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="3.2.26">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="app.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TransformOnBuild>true</TransformOnBuild>
+    </None>
+    <None Include="App.Debug.config">
+     <DependentUpon>app.config</DependentUpon>
+     <IsTransformFile>true</IsTransformFile>
+     <TransformOnBuild>true</TransformOnBuild>
+   </None>
+   <None Include="App.Release.config">
+     <DependentUpon>app.config</DependentUpon>
+     <IsTransformFile>true</IsTransformFile>
+   </None>
     <None Update="credentials.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

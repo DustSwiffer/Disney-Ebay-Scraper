@@ -6,6 +6,7 @@ using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Util.Store;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Threading;
 
@@ -23,7 +24,7 @@ namespace DisneyBroker.Handlers
         {
             SheetsService service = ConnectToGoogle();
 
-            string spreadsheetId = "[spreadsheet id vanuit de url]";
+            string spreadsheetId = ConfigurationManager.AppSettings["GoogleSheetId"];
             string range = sheet + "!A2:k";
             SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, range);
 
