@@ -10,17 +10,27 @@ using System.Configuration;
 using System.IO;
 using System.Threading;
 
-namespace DisneyBroker.Handlers
+namespace DisneyBroker.Interfaces
 {
-    public class GoogleHandler
+    interface IGoogleClient
     {
-        // If modifying these scopes, delete your previously saved credentials
-        // at ~/.credentials/sheets.googleapis.com-dotnet-quickstart.json
-        static string[] Scopes = { SheetsService.Scope.SpreadsheetsReadonly };
-        static string ApplicationName = "Disney Broker";
-        static UserCredential credential;
+        string sheet{ get; }
+        void GetSheetData();
+    }
 
-        public static List<DisneyEbayItem> GetData(string sheet)
+    class GoogleClient : IGoogleClient
+    {
+        public string sheet { get; set; }
+
+        private static string[] Scopes = { SheetsService.Scope.SpreadsheetsReadonly };
+        private static string ApplicationName = "Disney Broker";
+        private static UserCredential credential;
+        public GoogleClient(string _sheet)
+        {
+            sheet = _sheet;
+        }
+
+        public List<DisneyEbayItem> GetSheetData()
         {
             SheetsService service = ConnectToGoogle();
 
@@ -32,12 +42,12 @@ namespace DisneyBroker.Handlers
             ValueRange response = request.Execute();
             IList<IList<Object>> values = response.Values;
 
-            List<DisneyEbayItem> items = new List<DisneyEbayItem>(); 
+            List<DisneyEbayItem> items = new List<DisneyEbayItem>();
             if (values != null && values.Count > 0)
             {
                 foreach (var row in values)
                 {
-                    string priceString = row[8].ToString().Replace("€" , "");
+                    string priceString = row[8].ToString().Replace("€", "");
                     DisneyEbayItem item = new DisneyEbayItem
                     (
                         itemNo: (string)row[0],
@@ -61,13 +71,11 @@ namespace DisneyBroker.Handlers
             return items;
         }
 
-         private static SheetsService ConnectToGoogle()
+        private static SheetsService ConnectToGoogle()
         {
             using (var stream =
                new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
             {
-                // The file token.json stores the user's access and refresh tokens, and is created
-                // automatically when the authorization flow completes for the first time.
                 string credPath = "token.json";
                 credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                     GoogleClientSecrets.Load(stream).Secrets,
@@ -76,8 +84,6 @@ namespace DisneyBroker.Handlers
                     CancellationToken.None,
                     new FileDataStore(credPath, true)).Result;
             }
-
-            // Create Google Sheets API service.
             SheetsService service = new SheetsService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
@@ -85,6 +91,11 @@ namespace DisneyBroker.Handlers
             });
 
             return service;
+        }
+
+        void IGoogleClient.GetSheetData()
+        {
+            throw new NotImplementedException();
         }
     }
 }

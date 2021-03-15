@@ -1,4 +1,4 @@
-﻿using DisneyBroker.Handlers;
+﻿using DisneyBroker.Interfaces;
 using DisneyBroker.Models;
 using DisneyBroker.Utilities;
 using System;
@@ -20,7 +20,9 @@ namespace DisneyBroker
 
             Console.WriteLine("");
             Console.WriteLine("Getting NON-Traditions URLs to scrape");
-            List<DisneyEbayitem> nonTradtions = GoogleHandler.GetData("NON-Traditions");
+
+            GoogleClient googleClientNonTraditions = new GoogleClient("NON-Traditions");
+            List<DisneyEbayItem> nonTradtions = googleClientNonTraditions.GetSheetData();
 
             List<DisneyItem> modifiedNonTraditions = await scraper.ScrapeSite(nonTradtions);
 
@@ -31,7 +33,7 @@ namespace DisneyBroker
             for (int seconds = 1200; seconds >= 0; seconds--)
             {
                 Console.CursorLeft = 0;
-                Console.Write("{0} seconds", seconds);    // Add space to make sure to override previous contents
+                Console.Write("{0} seconds", seconds);
                 Thread.Sleep(1000);
             }
             Console.WriteLine("");
@@ -40,10 +42,10 @@ namespace DisneyBroker
             Console.WriteLine("");
             Console.WriteLine("Getting Traditions URLs to scrape");
 
-            List<DisneyEbayitem> tradtions = GoogleHandler.GetData("Traditions");
+            GoogleClient googleClientTraditions = new GoogleClient("NON-Traditions");
+            List<DisneyEbayItem> tradtions = googleClientTraditions.GetSheetData();
 
             List<DisneyItem> modifiedTraditions = await scraper.ScrapeSite(tradtions);
-            Console.WriteLine(modifiedTraditions.ToString());
         }
     }
 }
