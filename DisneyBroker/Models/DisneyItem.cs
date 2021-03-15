@@ -2,7 +2,7 @@
 
 namespace DisneyBroker.Models
 {
-    public record DisneyItem : DisneyEbayitem
+    public record DisneyItem : DisneyEbayItem
     {
         public DisneyItem(string itemNo, string name, string ebayLink, int amount, bool boxIncluded, bool coaIncluded, bool isRetired, float price, float ebayPrice, DateTime scrapeDate) : base(itemNo, name, ebayLink, amount, boxIncluded, coaIncluded, isRetired, price)
         {

@@ -10,7 +10,7 @@ namespace DisneyBroker
 {
     public class Scraper
     {
-        public async Task<List<DisneyItem>> ScrapeSite(List<DisneyEbayitem> items)
+        public async Task<List<DisneyItem>> ScrapeSite(List<DisneyEbayItem> items)
         {
             List<DisneyItem> patchedItems = new List<DisneyItem>();
 

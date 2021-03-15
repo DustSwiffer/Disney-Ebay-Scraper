@@ -1,8 +1,8 @@
 ﻿namespace DisneyBroker.Models
 {
-    public record DisneyEbayitem
+    public record DisneyEbayItem
     {
-        public DisneyEbayitem(string itemNo, string name, string ebayLink, int amount, bool boxIncluded, bool coaIncluded, bool isRetired, float price)
+        public DisneyEbayItem(string itemNo, string name, string ebayLink, int amount, bool boxIncluded, bool coaIncluded, bool isRetired, float price)
         {
             ItemNo = itemNo;
             Name = name;

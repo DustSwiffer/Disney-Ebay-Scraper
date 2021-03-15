@@ -20,7 +20,7 @@ namespace DisneyBroker.Handlers
         static string ApplicationName = "Disney Broker";
         static UserCredential credential;
 
-        public static List<DisneyEbayitem> GetData(string sheet)
+        public static List<DisneyEbayItem> GetData(string sheet)
         {
             SheetsService service = ConnectToGoogle();
 
@@ -32,13 +32,13 @@ namespace DisneyBroker.Handlers
             ValueRange response = request.Execute();
             IList<IList<Object>> values = response.Values;
 
-            List<DisneyEbayitem> items = new List<DisneyEbayitem>(); 
+            List<DisneyEbayItem> items = new List<DisneyEbayItem>(); 
             if (values != null && values.Count > 0)
             {
                 foreach (var row in values)
                 {
                     string priceString = row[8].ToString().Replace("€" , "");
-                    DisneyEbayitem item = new DisneyEbayitem
+                    DisneyEbayItem item = new DisneyEbayItem
                     (
                         itemNo: (string)row[0],
                         name: (string)row[1],
