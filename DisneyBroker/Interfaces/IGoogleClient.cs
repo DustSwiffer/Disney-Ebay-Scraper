@@ -15,7 +15,7 @@ namespace DisneyBroker.Interfaces
     interface IGoogleClient
     {
         string sheet{ get; }
-        void GetSheetData();
+        List<DisneyEbayItem> GetSheetData();
     }
 
     class GoogleClient : IGoogleClient
@@ -28,6 +28,7 @@ namespace DisneyBroker.Interfaces
         public GoogleClient(string _sheet)
         {
             sheet = _sheet;
+       
         }
 
         public List<DisneyEbayItem> GetSheetData()
@@ -91,11 +92,6 @@ namespace DisneyBroker.Interfaces
             });
 
             return service;
-        }
-
-        void IGoogleClient.GetSheetData()
-        {
-            throw new NotImplementedException();
         }
     }
 }
