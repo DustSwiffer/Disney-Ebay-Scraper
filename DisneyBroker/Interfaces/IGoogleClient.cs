@@ -85,14 +85,25 @@ namespace DisneyBroker.Interfaces
                     continue;
                 }
 
-                string range = sheet + "!J"+ rowCount + ":K";
+                string range;
                 ValueRange valueRange = new ValueRange();
 
-                List<Object> objectList = new List<object>() { item.EbayPrice, item.ScrapeDate.ToString("dd-MM-yyyy @ HH:mm") };
-                valueRange.Values = new List<IList<object>> { objectList};
+                if (item.EbayPrice == 0.00)
+                {
+                    range = sheet + "!k" + rowCount + ":K";
+                    List<object> objectListWithoutPrice = new List<object>() { item.ScrapeDate.ToString("dd-MM-yyyy @ HH:mm") };
+                    valueRange.Values = new List<IList<object>> { objectListWithoutPrice };
+                }
+                else
+                {
+                    range = sheet + "!J" + rowCount + ":K";
+                    List<object> objectListWithPrice = new List<object>() { item.EbayPrice, item.ScrapeDate.ToString("dd-MM-yyyy @ HH:mm") };
+                    valueRange.Values = new List<IList<object>> { objectListWithPrice };
+                }
+                
                 SpreadsheetsResource.ValuesResource.UpdateRequest updateRequest = service.Spreadsheets.Values.Update(valueRange, spreadsheetId, range);
                 updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
-                var updateResponse = updateRequest.Execute();
+                updateRequest.Execute();
             }
 
             return true;
