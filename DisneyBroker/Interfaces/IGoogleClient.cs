@@ -22,7 +22,7 @@ namespace DisneyBroker.Interfaces
     {
         public string sheet { get; set; }
 
-        private static string[] Scopes = { SheetsService.Scope.SpreadsheetsReadonly };
+        private static string[] Scopes = { SheetsService.Scope.Spreadsheets };
         private static string ApplicationName = "Disney Broker";
         private static UserCredential credential;
         public GoogleClient(string _sheet)
@@ -68,6 +68,34 @@ namespace DisneyBroker.Interfaces
             }
 
             return items;
+        }
+
+        public bool SaveData(List<DisneyGoogleItem> items)
+        {
+            int rowCount = 1;
+            SheetsService service = ConnectToGoogle();
+
+            string spreadsheetId = ConfigurationManager.AppSettings["GoogleSheetId"];
+            foreach(DisneyGoogleItem item in items)
+            {
+                rowCount++;
+
+                if(item.EbayLink == null  || item.EbayLink == "" )
+                {
+                    continue;
+                }
+
+                string range = sheet + "!J"+ rowCount + ":K";
+                ValueRange valueRange = new ValueRange();
+
+                List<Object> objectList = new List<object>() { item.EbayPrice, item.ScrapeDate.ToString("dd-MM-yyyy @ HH:mm") };
+                valueRange.Values = new List<IList<object>> { objectList};
+                SpreadsheetsResource.ValuesResource.UpdateRequest updateRequest = service.Spreadsheets.Values.Update(valueRange, spreadsheetId, range);
+                updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
+                var updateResponse = updateRequest.Execute();
+            }
+
+            return true;
         }
 
         private static SheetsService ConnectToGoogle()

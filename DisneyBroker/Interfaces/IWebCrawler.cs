@@ -24,10 +24,15 @@ namespace DisneyBroker.Interfaces
         public async Task<List<ItemHtml>> GetHtmlAsync()
         {
             List<ItemHtml> htmlList = new List<ItemHtml>();
+            
             foreach (DisneyEbayItem item  in items)
             {
+                ItemHtml itemHtml = new ItemHtml();
                 if (item.EbayLink == null || item.EbayLink == "")
                 {
+                   
+                    itemHtml.ItemName = item.Name;
+                    htmlList.Add(itemHtml);
                     continue;
                 }
 
@@ -45,7 +50,7 @@ namespace DisneyBroker.Interfaces
                         HtmlDocument htmlDocument = new HtmlDocument();
                         htmlDocument.LoadHtml(htmlString);
 
-                        ItemHtml itemHtml = new ItemHtml
+                        itemHtml = new ItemHtml
                         {
                             ItemName = item.Name,
                             Html = htmlDocument

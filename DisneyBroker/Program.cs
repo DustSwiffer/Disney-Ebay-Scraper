@@ -16,20 +16,18 @@ namespace DisneyBroker
 
             ConsoleBannerWriter.Write();
 
-            var scraper = new Scraper();
-
             Console.WriteLine("");
             Console.WriteLine("Getting NON-Traditions URLs to scrape");
-            List<DisneyEbayItem> nonTradtions = new List<DisneyEbayItem>();
 
             GoogleClient googleClientNonTraditions = new GoogleClient("NON-Traditions");
-            nonTradtions = googleClientNonTraditions.GetSheetData();
+            List<DisneyEbayItem> nonTradtions = googleClientNonTraditions.GetSheetData();
 
             WebCrawler webCrawlerForNonTradtions = new WebCrawler(nonTradtions);
             List<ItemHtml> NonTraditionsHtml = await webCrawlerForNonTradtions.GetHtmlAsync();
 
             List<DisneyGoogleItem> nTItems = Scraper.GetEstimateValueFromHtml(NonTraditionsHtml, nonTradtions);
 
+            googleClientNonTraditions.SaveData(nTItems);
 
             Console.WriteLine("");
             Console.ForegroundColor = ConsoleColor.DarkYellow;
@@ -54,6 +52,8 @@ namespace DisneyBroker
             List<ItemHtml> TraditionsHtml = await webCrawlerForTradtions.GetHtmlAsync();
 
             List<DisneyGoogleItem> tItems = Scraper.GetEstimateValueFromHtml(TraditionsHtml, tradtions);
+
+            googleClientNonTraditions.SaveData(tItems);
         }
     }
 }

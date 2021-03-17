@@ -15,6 +15,24 @@ namespace DisneyBroker
 
             foreach (ItemHtml itemHtml in itemHtmls)
             {
+                
+                DisneyEbayItem item = items.Where(i => i.Name == itemHtml.ItemName).First();
+                Console.Write("Estimate value of \"" + item.Name + "\": ");
+                if (itemHtml.Html == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(" 0 (NO EBAY LINK)");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    if (item != null)
+                    {
+                        DisneyGoogleItem transformedEmpty = Transform(item);
+                        transformedEmpty.EbayPrice = Convert.ToSingle(0);
+                        transformedEmpty.ScrapeDate = DateTime.UtcNow;
+                        patchedItems.Add(transformedEmpty);
+                    }
+                    continue;
+                }
                 HtmlDocument htmlDocument = itemHtml.Html;
 
                 HtmlNode productListHtml = htmlDocument.DocumentNode.Descendants("ul")
@@ -87,13 +105,10 @@ namespace DisneyBroker
 
                     roundEstimatePrice = Math.Round(estimatePrice, 2);
                 }
-                
 
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("€" + roundEstimatePrice);
                 Console.ForegroundColor = ConsoleColor.White;
-
-                DisneyEbayItem item = items.Where(i => i.Name == itemHtml.ItemName).First();
 
                 if (item != null)
                 {
@@ -123,7 +138,6 @@ namespace DisneyBroker
                 COAIncluded = ebayItem.COAIncluded,
                 IsRetired = ebayItem.IsRetired,
                 Price = ebayItem.Price
-
             };
         }
     }
