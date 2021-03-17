@@ -3,100 +3,128 @@ using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace DisneyBroker
 {
     public class Scraper
     {
-        public async Task<List<DisneyItem>> ScrapeSite(List<DisneyEbayItem> items)
+        public static List<DisneyGoogleItem> GetEstimateValueFromHtml(List<ItemHtml> itemHtmls, List<DisneyEbayItem> items)
         {
-            List<DisneyItem> patchedItems = new List<DisneyItem>();
+            List<DisneyGoogleItem> patchedItems = new List<DisneyGoogleItem>();
 
-            foreach (DisneyItem item in items)
+            foreach (ItemHtml itemHtml in itemHtmls)
             {
-                if (item.EbayLink == null || item.EbayLink == "")
-                {
-                    continue;
-                }
-                Console.Write("Estimate price of \"" + item.Name + "\": ");
-                HttpClient webClient = new HttpClient();
+                HtmlDocument htmlDocument = itemHtml.Html;
 
-                webClient.DefaultRequestHeaders.UserAgent
-                    .ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36");
+                HtmlNode productListHtml = htmlDocument.DocumentNode.Descendants("ul")
+                    .Where(node => node.GetAttributeValue("class", "")
+                    .Equals("srp-results srp-list clearfix")).FirstOrDefault();
 
-                using (HttpResponseMessage html = await webClient.GetAsync(item.EbayLink, HttpCompletionOption.ResponseContentRead))
+                List<HtmlNode> listItems = productListHtml.Descendants("li")
+                    .Where(node => node.GetAttributeValue("class", "")
+                    .StartsWith("s-item")).ToList();
+
+                float estimatePrice = 0;
+                double roundEstimatePrice = 0;
+                int count = 0;
+
+                string[] splitItemName = itemHtml.ItemName.Split(" ");
+
+                foreach (HtmlNode listItem in listItems)
                 {
-                    using (HttpContent content = html.Content)
+                    HtmlNode title = listItem.Descendants("h3")
+                        .Where(node => node.GetAttributeValue("class", "")
+                        .Contains("s-item__title")).FirstOrDefault();
+                    if(splitItemName.Any(sim => title.InnerText.Contains(sim)))
                     {
-                        string htmlString = await content.ReadAsStringAsync();
+                        HtmlNode priceParent = listItem.Descendants("span")
+                       .Where(node => node.GetAttributeValue("class", "")
+                       .Equals("s-item__price")).FirstOrDefault();
 
-                        var htmlDocument = new HtmlDocument();
-                        htmlDocument.LoadHtml(htmlString);
+                        HtmlNode priceElement = priceParent.Descendants("span").FirstOrDefault();
 
-                        HtmlNode productListHtml = htmlDocument.DocumentNode.Descendants("ul")
-                            .Where(node => node.GetAttributeValue("class", "")
-                            .Equals("srp-results srp-list clearfix")).FirstOrDefault();
-
-                        List<HtmlNode> listItems = productListHtml.Descendants("li")
-                            .Where(node => node.GetAttributeValue("class", "")
-                            .StartsWith("s-item")).ToList();
-
-                        float estimatePrice = 0;
-                        double roundEstimatePrice = 0;
-                        int count = 0;
-
-                        foreach (HtmlNode listItem in listItems)
+                        string price = "";
+                        if (priceElement != null)
                         {
-                            HtmlNode priceParent = listItem.Descendants("span")
-                                .Where(node => node.GetAttributeValue("class", "")
-                                .Equals("s-item__price")).FirstOrDefault();
-                            HtmlNode priceElement = priceParent.Descendants("span").FirstOrDefault();
-
-                            string price = "";
-                            if (priceElement != null)
+                            string innerTextTransformed = priceElement.InnerText;
+                            if (innerTextTransformed.Contains("."))
                             {
-                                string innerTextTransformed = priceElement.InnerText;
-                                if (innerTextTransformed.Contains("."))
-                                {
-                                    innerTextTransformed = innerTextTransformed.Replace(".", "");
-                                }
-                                price = innerTextTransformed.Replace(",", ".").Replace("EUR ", "");
+                                innerTextTransformed = innerTextTransformed.Replace(".", "");
                             }
-                            else
+                            price = innerTextTransformed.Replace(",", ".").Replace("EUR ", "");
+                        }
+                        else
+                        {
+                            string innerTextTransformed = priceParent.InnerText;
+                            if (innerTextTransformed.Contains("."))
                             {
-                                string innerTextTransformed = priceParent.InnerText;
-                                if (innerTextTransformed.Contains("."))
-                                {
-                                    innerTextTransformed = innerTextTransformed.Replace(".", "");
-                                }
-                                price = innerTextTransformed.Replace(",", ".").Replace("EUR ", "");
+                                innerTextTransformed = innerTextTransformed.Replace(".", "");
                             }
-
-                            estimatePrice += Convert.ToSingle(price);
+                            price = innerTextTransformed.Replace(",", ".").Replace("EUR ", "");
+                        }
+                        Regex priceRegex = new Regex("^(?:\\d+|\\d*\\.\\d+|(?:\\d{1,3},)?(?:\\d{3},)*\\d{3}|(?:\\d{1,3},)?(?:\\d{3},)*\\d{3}\\.\\d+)");
+      
+                        if (!priceRegex.IsMatch(price))
+                        {
+                            estimatePrice += 0;
                             count++;
+                            continue;
                         }
 
-                        estimatePrice /= count;
-
-                        roundEstimatePrice = Math.Round(estimatePrice, 2);
-
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine("€" + roundEstimatePrice);
-                        Console.ForegroundColor = ConsoleColor.White;
-
-                        DisneyItem test = item with
-                        {
-                            EbayPrice = Convert.ToSingle(roundEstimatePrice),
-                            ScrapeDate = DateTime.UtcNow
-                        };
-
-                        patchedItems.Add(item);
+                        estimatePrice += Convert.ToSingle(price);
+                        count++;
                     }
                 }
+
+                if(estimatePrice == 0) {
+
+                    roundEstimatePrice = 0.00;
+                }
+                else
+                {
+                    estimatePrice /= count;
+
+                    roundEstimatePrice = Math.Round(estimatePrice, 2);
+                }
+                
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("€" + roundEstimatePrice);
+                Console.ForegroundColor = ConsoleColor.White;
+
+                DisneyEbayItem item = items.Where(i => i.Name == itemHtml.ItemName).First();
+
+                if (item != null)
+                {
+                    DisneyGoogleItem googleItem = Transform(item);
+                    googleItem.EbayPrice = Convert.ToSingle(roundEstimatePrice);
+                    googleItem.ScrapeDate = DateTime.UtcNow;
+
+                    patchedItems.Add(googleItem);
+                } else
+                {
+                    throw new Exception("Could not find Disney item with the name " + itemHtml.ItemName);
+                }
             }
+            
             return patchedItems;
+        }
+
+        private static DisneyGoogleItem Transform(DisneyEbayItem ebayItem)
+        {
+            return new DisneyGoogleItem
+            {
+                ItemNo = ebayItem.ItemNo,
+                Name = ebayItem.Name,
+                EbayLink = ebayItem.EbayLink,
+                Amount = ebayItem.Amount,
+                BoxIncluded = ebayItem.BoxIncluded,
+                COAIncluded = ebayItem.COAIncluded,
+                IsRetired = ebayItem.IsRetired,
+                Price = ebayItem.Price
+
+            };
         }
     }
 }

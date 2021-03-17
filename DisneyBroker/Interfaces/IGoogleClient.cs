@@ -38,7 +38,6 @@ namespace DisneyBroker.Interfaces
             string range = sheet + "!A2:k";
             SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, range);
 
-
             ValueRange response = request.Execute();
             IList<IList<Object>> values = response.Values;
 
